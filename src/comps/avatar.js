@@ -40,11 +40,12 @@ const tombstoneUrl = '/tombstone.png';
 
 const Avatar = ({ player, thisPlayerCanSelect, selected, setSelected, setLastSelected, gameID }) => {
   const [style, setStyle] = useState(playerStyle);
-  const [votes, setVotes] = useState(player.votes);
+  const [votes, setVotes] = useState(player.votes || 0);
   const [canHover, setCanHover] = useState(player.isAlive);
   const [canSelect, setCanSelect] = useState(player.isAlive && thisPlayerCanSelect);
   const [isSelected, setIsSelected] = useState(player === selected);
   const [isSelectedLagFrame, setIsSelectedLagFrame] = useState(player === selected);
+
 
   const avatar = useMemo(() => {
     return createAvatar(micah, {
@@ -52,6 +53,10 @@ const Avatar = ({ player, thisPlayerCanSelect, selected, setSelected, setLastSel
       seed: player.username,
     }).toDataUriSync();
   }, []);
+
+  useEffect(() => {
+    setVotes(player.votes || 0)
+  }, [player.votes])
 
   // vote to kill
   async function voteForUser(username, previousUsername, gameID ) {
@@ -109,7 +114,6 @@ const Avatar = ({ player, thisPlayerCanSelect, selected, setSelected, setLastSel
 
   // when selected or player change, set state to whether this is the current selection
   useEffect(() => {
-
     if(selected === player) console.log('selected: ', player)
     setIsSelected(selected === player);
   }, [selected, player])
@@ -153,6 +157,7 @@ const Avatar = ({ player, thisPlayerCanSelect, selected, setSelected, setLastSel
     setSelected(player)
     setLastSelected(selected)
     const response = await voteForUser(player.username, newLastSelected ? newLastSelected.username : null, gameID)
+    console.log(response)
     console.log('voted for ', player.username, '\nresponse\n', response)
   }
   // if not the current selection:
@@ -175,9 +180,13 @@ const Avatar = ({ player, thisPlayerCanSelect, selected, setSelected, setLastSel
     }
   }
 
+  // useEffect(() => {
+  //   console.log(selected)
+  // }, [selected])
+
   return (
     <div style={style} onMouseOver={handleHoverIn} onMouseLeave={handleHoverOut} onClick={handleSelect}>
-      <div style={{position: 'relative'}} >{player.isAlive ? <div style={voteStyle}>{votes}</div> : null}</div>
+      <div style={{position: 'relative'}} >{player.isAlive && votes > 0 ? <div style={voteStyle}>{votes}</div> : null}</div>
         {player.isAlive ?
           <Image src={avatar} alt="Avatar" width="100" height="100" /> :
           <Image className="dead" src='/2869384.png' alt="tombstone" width="100" height="100" />}
