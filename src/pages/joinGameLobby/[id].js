@@ -21,6 +21,7 @@ export default function Lobby() {
 
 
   function createGame() {
+    console.log('Players Connected Console log',playersConnected)
     const createGameObject = {
       gameID: gameLobbyText,
 
@@ -36,7 +37,6 @@ export default function Lobby() {
   }
 
   function getUserNames() {
-
     axios
       .get(`http://localhost:3000/api/lobby/${id}`)
       .then((res) => {
