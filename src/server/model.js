@@ -15,7 +15,7 @@ const model = {
       throw error;
     }
   },
-  createGame: async ({gameID, users, phase}) => {
+  createGame: async (gameID, users, phase) => {
     console.log('creating game...')
     const existingGame = await db.GameState.findOne({gameID: gameID})
 
@@ -23,7 +23,6 @@ const model = {
       throw new Error('A game with the provided gameID already exists')
       return
     }
-
     try {
       const gameState = new db.GameState({
         gameID: gameID,
@@ -33,6 +32,7 @@ const model = {
       await gameState.save();
       // console.log(gameState, '------GAMESTATE IN MODEL-------')
       console.log(`game ${gameID} successfully created! `)
+      await db.Lobby.findOneAndUpdate({ gameID: gameID }, { hasStarted: true })
       return gameState;
     } catch (error) {
       console.error(error);
@@ -45,15 +45,17 @@ const model = {
     let newLobby = new db.Lobby({
       gameID: gameID,
       users: [{
-        userName: user,
+        username: user,
+        rank: 1,
         role: 'default'
-      }]
+      }],
+      hasStarted: false
     })
     return newLobby.save()
   },
   updateLobby: async (gameID, user) => {
     let newUser = {
-      userName: user,
+      username: user,
       rank: 1,
       role: `default`,
     };
@@ -186,7 +188,7 @@ const model = {
       console.error(error)
       throw error
     }
-  },
+  }
 
 }
 

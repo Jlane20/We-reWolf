@@ -14,7 +14,7 @@ export default function Lobby() {
   const [copyWord, setCopyWord] = useState("Copy To Clipboard");
   const [selected, setSelected] = useState([]);
   const [urlCode, setUrlCode] = useState([]);
-  const [userName, setUserName] = useState("");
+  const [username, setUserName] = useState("");
   const router = useRouter();
   const { id } = router.query;
 
@@ -24,9 +24,7 @@ export default function Lobby() {
     console.log('Players Connected Console log',playersConnected)
     const createGameObject = {
       gameID: gameLobbyText,
-
       users: assignRoles(playersConnected),
-
       phase: "day",
     };
     console.log(createGameObject, "********************");
@@ -41,7 +39,12 @@ export default function Lobby() {
       .get(`http://localhost:3000/api/lobby/${id}`)
       .then((res) => {
         console.log("RES from GetUserNames", res)
-        setPlayersConnected(res.data[0].users);
+        setPlayersConnected(res.data[0].users)
+        if(res.data[0].hasStarted){
+          router.push(`http://localhost:3000/game/${id}`)
+        } else {
+          setTimeout(getUserNames, 3000);
+        }
       })
       .catch((err) => console.log(err));
 
@@ -50,10 +53,10 @@ export default function Lobby() {
 
   //***************************Can be Delete Once Pull confirmed working*************************************************** */
   // function hostLobby() {
-  //   axios.post(`http://localhost:3000/api/lobby/${gameLobbyText}`, {user:  userName}).then((res) => console.log('RES from HostLobby POST Req',res)).catch((err) => console.log(err));
+  //   axios.post(`http://localhost:3000/api/lobby/${gameLobbyText}`, {user:  username}).then((res) => console.log('RES from HostLobby POST Req',res)).catch((err) => console.log(err));
   // }
   // function joinLobby() {
-  //   axios.put(`http://localhost:3000/api/lobby/${gameLobbyText}`, {user:  userName}).then((res) => console.log('RES from HostLobby PUT Req',res)).catch((err) => console.log(err));
+  //   axios.put(`http://localhost:3000/api/lobby/${gameLobbyText}`, {user:  username}).then((res) => console.log('RES from HostLobby PUT Req',res)).catch((err) => console.log(err));
   // }
   // useEffect(() => {
   //   let gameID = router.query.id
@@ -71,25 +74,8 @@ export default function Lobby() {
 
   function getUserName() {
     setUserName(window.localStorage.user);
-    console.log("USERNAME", userName);
+    console.log("USERNAME", username);
   }
-
-  let fakePlayers = [
-    { userName: "BadBill", vote: 1, role: null },
-    { userName: "theRealJae", vote: 1, role: null },
-    { userName: "PopShaq", vote: 1, role: null },
-    { userName: "Chrodatta", vote: 1, role: null },
-    { userName: "ZacKattack", vote: 1, role: null },
-    { userName: "jlane20", vote: 1, role: null },
-    { userName: "Romulus", vote: 1, role: null },
-    { userName: "Remus", vote: 1, role: null },
-    //greater than 8 test
-    { userName: "Bumi", vote: 1, role: null },
-    { userName: "Chance", vote: 1, role: null },
-    { userName: "Bandi", vote: 1, role: null },
-    //12 or more test
-    { userName: "Axel", vote: 1, role: null },
-  ];
 
   function assignRoles(arrayOfPlayers) {
     let rankArray = arrayOfPlayers.map((player) => {
@@ -132,7 +118,7 @@ export default function Lobby() {
       }
     }
     return sortedArray.map((player) => {
-      return { ...player, vote: 0 };
+      return { ...player, votes: 0, permissions: [player.role === 'Wolf' ? 'werewolf' : '', 'all', player.username] };
     });
   }
 
@@ -154,11 +140,9 @@ export default function Lobby() {
     } else {
       //add a POST request to update users in lobby
     }
-
-    const urlCode = window.location.pathname.split("/");
-    console.log(urlCode[urlCode.length - 1]);
-    setGameLobbyText(urlCode[urlCode.length - 1]);
+    setGameLobbyText(router.query.id)
     getUserName();
+    getUserNames(router.query.id)
   }, []);
 
   let copyClick = () => {
@@ -166,17 +150,6 @@ export default function Lobby() {
     setCopy(true);
     setCopyWord("Copied !");
   };
-
-  useEffect(() => {
-
-    if (userName !== undefined) {
-      setTimeout(() => {
-        setInterval(function () {
-          getUserNames(gameLobbyText);
-        }, 5000);
-      }, 3000);
-    }
-  }, []);
 
   return (
     <div style={containerStyle}>
