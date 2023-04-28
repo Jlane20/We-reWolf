@@ -89,7 +89,7 @@ export default function Lobby() {
       return player;
     });
     let sortedArray = rankArray.sort((a, b) => a.vote - b.vote);
-    if (sortedArray.length <= 8) {
+    if (sortedArray.length <= 7) {
       sortedArray[0].role = "werewolf";
       if (selected.includes("Doctor")) {
         sortedArray[sortedArray.length - 1].role = "Doctor";
@@ -97,7 +97,7 @@ export default function Lobby() {
       if (selected.includes("Seer")) {
         sortedArray[sortedArray.length - 2].role = "Seer";
       }
-    } else if (sortedArray.length > 8 && sortedArray.length < 12) {
+    } else if (sortedArray.length > 7 && sortedArray.length < 12) {
       sortedArray[0].role = "werewolf";
       sortedArray[1].role = "werewolf";
       if (selected.includes("Doctor")) {
