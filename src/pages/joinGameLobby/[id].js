@@ -117,6 +117,7 @@ export default function Lobby() {
         sortedArray[sortedArray.length - 2].role = "Seer";
       }
     }
+    console.log(sortedArray)
     return sortedArray.map((player) => {
       return { ...player, votes: 0, permissions: [player.role === 'Wolf' ? 'werewolf' : '', 'all', player.username] };
     });
