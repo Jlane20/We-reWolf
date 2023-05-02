@@ -38,17 +38,16 @@ export default function Lobby() {
     axios
       .get(`http://localhost:3000/api/lobby/${id}`)
       .then((res) => {
-        console.log("RES from GetUserNames", res)
+        // console.log("RES from GetUserNames", res)
         setPlayersConnected(res.data[0].users)
         if(res.data[0].hasStarted){
           router.push(`http://localhost:3000/game/${id}`)
         } else {
           setTimeout(getUserNames, 3000);
         }
+        // res.end()
       })
       .catch((err) => console.log(err));
-
-
     }
 
   //***************************Can be Delete Once Pull confirmed working*************************************************** */
